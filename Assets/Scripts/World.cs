@@ -39,10 +39,10 @@ public static class World
 
 	public static int WorldToLocalPos(int worldPos)
 	{
-		return worldPos / unitSize + unitOffset;
+		return worldPos / unitSize;
 	}
 
-	public static int WorldToLocaldDist(int worldDist)
+	public static int WorldToLocalDist(int worldDist)
 	{
 		return worldDist / unitSize;
 	}
@@ -52,8 +52,8 @@ public static class World
 	{
 		return new Vector3
 		{
-			x = worldPos.x / unitSize + unitOffset,
-			y = worldPos.y / unitSize + unitOffset
+			x = (int)(worldPos.x / unitSize),
+			y = (int)(worldPos.y / unitSize)
 		};
 	}
 
