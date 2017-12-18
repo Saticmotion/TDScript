@@ -1,26 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Path : MonoBehaviour
+public class Spawner : MonoBehaviour
 {
-	public static Path instance
-	{
-		get { return _instance; }
-		set { _instance = value; }
-	}
-	private static Path _instance;
-
-	public List<GameObject> points;
-
 	public GameObject monstarPrefab;
 	public List<GameObject> monstars;
+
+	public Path path;
+	public GameObject startPoint;
 
 	public float spawnInterval = 2;
 	public float timeSinceLastSpawn;
 
-	void Start ()
+	void Start()
 	{
-		_instance = this;
+		path = FindObjectOfType<Path>();
+		startPoint = path.points[0];
 	}
 
 	void Update()
@@ -28,7 +24,7 @@ public class Path : MonoBehaviour
 		timeSinceLastSpawn += Time.deltaTime;
 		if (timeSinceLastSpawn > spawnInterval)
 		{
-			var monstar = Instantiate(monstarPrefab, points[0].transform.position, Quaternion.identity);
+			var monstar = Instantiate(monstarPrefab, startPoint.transform.position, Quaternion.identity);
 			monstars.Add(monstar);
 			timeSinceLastSpawn = 0;
 		}
