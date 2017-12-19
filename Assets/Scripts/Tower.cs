@@ -45,6 +45,7 @@ public class Tower : MonoBehaviour
 
 				if (nearestDistance < World.LocalToWorldDist(range))
 				{
+					lazor.enabled = true;
 					lazor.SetPositions(new[] { transform.position, nearest.transform.position });
 					nearest.GetComponent<Monstar>().Hit(damage);
 
@@ -54,7 +55,7 @@ public class Tower : MonoBehaviour
 		}
 		else
 		{
-			lazor.SetPositions(new[] { transform.position, transform.position });
+			lazor.enabled = false;
 		}
 
 		if (showRangeThisFrame)

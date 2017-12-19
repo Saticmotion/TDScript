@@ -7,11 +7,17 @@ public class World : MonoBehaviour
 	public static List<GameObject> monsters;
 	public static List<GameObject> path;
 	public static GameObject[,] map;
-	
+
 	public static int money;
+	public static int level;
 
 	public GameObject pathHolder;
 	public GameObject pathPointPrefab;
+	public GameObject monstarPrefab;
+
+	public float spawnInterval;
+	public float timeSinceLastSpawn;
+	public int monstersLeft;
 
 	public void Start()
 	{
@@ -22,10 +28,10 @@ public class World : MonoBehaviour
 		var heightTiles = WorldToLocalDist(Screen.height);
 		map = new GameObject[widthTiles, heightTiles];
 
-		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(0, 10)), Quaternion.identity, pathHolder.transform));
-		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(10, 10)), Quaternion.identity, pathHolder.transform));
-		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(10, 0)), Quaternion.identity, pathHolder.transform));
-		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(0, 0)), Quaternion.identity, pathHolder.transform));
+		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(1				, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
+		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(widthTiles - 2	, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
+		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(widthTiles - 2	, 1))				, Quaternion.identity, pathHolder.transform));
+		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(1				, 1))				, Quaternion.identity, pathHolder.transform));
 
 		for (int i = 0; i < path.Count; i++)
 		{
@@ -33,31 +39,59 @@ public class World : MonoBehaviour
 		}
 
 		money = 10;
+		level = 0;
+		spawnInterval = 1;
 	}
 
 	public void Update()
 	{
-		for (int i = monsters.Count - 1; i >= 0; i--)
-		{
-			var m = monsters[i].GetComponent<Monstar>();
-			if (m.dead)
-			{
-				money += m.reward;
-				Destroy(monsters[i]);
-				monsters.RemoveAt(i);
-			}
-		}
-
+		
 		var mousePos = WorldToLocalPos(Input.mousePosition);
 		if (LocalPosValid(mousePos) && map[mousePos.x, mousePos.y] != null)
 		{
 			map[mousePos.x, mousePos.y].GetComponent<Tower>().ShowRange();
+		}
+
+		//NOTE(Simon): Spawning
+		{
+			timeSinceLastSpawn += Time.deltaTime;
+			if (timeSinceLastSpawn > spawnInterval)
+			{
+				var monster = Instantiate(monstarPrefab, path[0].transform.position, Quaternion.identity);
+				monster.GetComponent<Monstar>().SetStats((int)(level * 1.5f), (int)(1 * Mathf.Pow(1.25f, level)));
+				monsters.Add(monster);
+				timeSinceLastSpawn = 0;
+				monstersLeft--;
+
+				if (monstersLeft <= 0)
+				{
+					level += 1;
+					monstersLeft = 10;
+				}
+			}
+		}
+
+		//NOTE(Simon): Killing/despawning
+		{
+			for (int i = monsters.Count - 1; i >= 0; i--)
+			{
+				var m = monsters[i].GetComponent<Monstar>();
+				if (m.dead)
+				{
+					money += m.reward;
+					Destroy(monsters[i]);
+					monsters.RemoveAt(i);
+				}
+			}
 		}
 	}
 
 	public void OnGUI()
 	{
 		GUI.Label(new Rect(0, 0, 100, 20), "money: " + money);
+		GUI.Label(new Rect(0, 20, 100, 20), "level: " + level);
+		GUI.Label(new Rect(0, 40, 100, 20), "hp: " + (int)(1 * Mathf.Pow(1.5f, level)));
+		GUI.Label(new Rect(0, 60, 100, 20), "monsters left: " + monstersLeft);
 	}
 
 	#region helpers

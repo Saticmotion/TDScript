@@ -17,9 +17,7 @@ public class Monstar : MonoBehaviour
 		prevPoint = World.path[0];
 		nextPoint = World.path[1];
 
-		maxHp = 2;
-		hp = maxHp;
-		reward = maxHp;
+		
 	}
 
 	void Update()
@@ -40,6 +38,13 @@ public class Monstar : MonoBehaviour
 
 		var direction = Vector3.Normalize(nextPoint.transform.position - prevPoint.transform.position);
 		transform.position += direction * World.LocalToWorldDist(1) * Time.deltaTime;
+	}
+
+	public void SetStats(int reward, int maxHp)
+	{
+		this.maxHp = maxHp;
+		hp = maxHp;
+		this.reward = reward;
 	}
 
 	public void Hit(int damage)
