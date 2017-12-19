@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TowerPlacer : MonoBehaviour
 {
@@ -34,12 +32,16 @@ public class TowerPlacer : MonoBehaviour
 		{
 			var pos = World.WorldToLocalPos(Input.mousePosition);
 
-			if (Input.GetMouseButtonDown(0))
+			if (Input.GetMouseButtonDown(0) 
+				&& World.map[pos.x, pos.y] == null
+				&& World.money >= 10)
 			{
 				PlaceTower(pos);
+				World.money -= 10;
 			}
 
 			towerPreview.transform.position = World.LocalToWorldPos(pos);
+			towerPreview.GetComponent<Tower>().ShowRange();
 
 			if (Input.GetKey(KeyCode.Escape))
 			{
@@ -49,8 +51,10 @@ public class TowerPlacer : MonoBehaviour
 		}
 	}
 
-	void PlaceTower(Vector3 localPos)
+	void PlaceTower(Vector2Int localPos)
 	{
 		var tower = Instantiate(towerPrefab, World.LocalToWorldPos(localPos), Quaternion.identity);
+		tower.GetComponent<Tower>().active = true;
+		World.map[localPos.x, localPos.y] = tower;
 	}
 }

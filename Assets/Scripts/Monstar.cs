@@ -5,32 +5,32 @@ public class Monstar : MonoBehaviour
 {
 	public GameObject prevPoint;
 	public GameObject nextPoint;
-	public Path path;
 
-	public int index;
+	public int pathIndex;
 	public bool dead;
 	public int maxHp;
 	public int hp;
+	public int reward;
 
 	void Start()
 	{
-		path = FindObjectOfType<Path>();
-		prevPoint = path.points[0];
-		nextPoint = path.points[1];
+		prevPoint = World.path[0];
+		nextPoint = World.path[1];
 
 		maxHp = 2;
 		hp = maxHp;
+		reward = maxHp;
 	}
 
 	void Update()
 	{
 		if ((transform.position - nextPoint.transform.position).magnitude < 5f)
 		{
-			if (index < path.points.Count - 1)
+			if (pathIndex < World.path.Count - 1)
 			{
-				index++;
+				pathIndex++;
 				prevPoint = nextPoint;
-				nextPoint = path.points[index];
+				nextPoint = World.path[pathIndex];
 			}
 			else
 			{
