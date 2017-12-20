@@ -4,7 +4,7 @@ public class Tower : MonoBehaviour
 {
 	public GameObject rangeIndicator;
 
-	public float shootInterval = 0.5f;
+	public float shootInterval;
 	public float timeSinceLastShot;
 	public int damage;
 	public int range;
@@ -16,9 +16,6 @@ public class Tower : MonoBehaviour
 	void Start()
 	{
 		lazor = GetComponent<LineRenderer>();
-		range = 3;
-		damage = 10;
-		rangeIndicator.transform.localScale = new Vector3(range * 2, range * 2);
 	}
 
 	void Update()
@@ -74,4 +71,40 @@ public class Tower : MonoBehaviour
 	{
 		showRangeThisFrame = true;
 	}
+
+	public void SetStats(TowerStats stats)
+	{
+		damage = stats.damage;
+		range = stats.range;
+		shootInterval = stats.shootInterval;
+		GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(stats.image);
+		rangeIndicator.transform.localScale = new Vector3(range * 2, range * 2);
+	}
+}
+
+public struct TowerStats
+{
+	public int damage;
+	public int range;
+	public float shootInterval;
+	public string image;
+}
+
+public class TowerTypes
+{
+	public static TowerStats regular = new TowerStats
+	{
+		damage = 10,
+		range = 3,
+		shootInterval = 0.5f,
+		image = "Textures/tower"
+	};
+	
+	public static TowerStats stronk = new TowerStats
+	{
+		damage = 25,
+		range = 4,
+		shootInterval = 1.5f,
+		image = "Textures/towerRed"
+	};
 }

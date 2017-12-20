@@ -13,17 +13,20 @@ public class World : MonoBehaviour
 	public static List<GameObject> monsters;
 	public static List<GameObject> path;
 	public static GameObject[,] map;
+	public static Mode mode;
+	public static TowerStats towerToPlace;
+	public static GameObject towerPreview;
 
 	public static int money;
 	public static int level;
 
 	public GameObject pathHolder;
+	public GameObject monsterHolder;
+	public GameObject towerHolder;
 	public GameObject pathPointPrefab;
 	public GameObject monstarPrefab;
 	public GameObject towerPrefab;
-	public GameObject towerPreview;
 
-	public Mode mode;
 	public float spawnInterval;
 	public float timeSinceLastSpawn;
 	public int monstersLeft;
@@ -38,6 +41,7 @@ public class World : MonoBehaviour
 		map = new GameObject[widthTiles, heightTiles];
 		
 		towerPreview = Instantiate(towerPrefab, new Vector3(-100, -100), Quaternion.identity);
+		towerPreview.GetComponent<Tower>().SetStats(TowerTypes.regular);
 
 		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(1				, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
 		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(widthTiles - 2	, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
@@ -73,7 +77,7 @@ public class World : MonoBehaviour
 
 		if (mode == Mode.PlacingTower)
 		{
-			var pos = World.WorldToLocalPos(Input.mousePosition);
+			var pos = WorldToLocalPos(Input.mousePosition);
 
 			if (Input.GetMouseButtonDown(0)
 				&& map[pos.x, pos.y] == null
@@ -96,7 +100,7 @@ public class World : MonoBehaviour
 		timeSinceLastSpawn += Time.deltaTime;
 		if (timeSinceLastSpawn > spawnInterval)
 		{
-			var monster = Instantiate(monstarPrefab, path[0].transform.position, Quaternion.identity);
+			var monster = Instantiate(monstarPrefab, path[0].transform.position, Quaternion.identity, monsterHolder.transform);
 			monster.GetComponent<Monstar>().SetStats((int)(level * 1.5f), (int)(10 * Mathf.Pow(1.25f, level - 1)));
 			monsters.Add(monster);
 			timeSinceLastSpawn = 0;
@@ -130,9 +134,17 @@ public class World : MonoBehaviour
 
 	void PlaceTower(Vector2Int localPos)
 	{
-		var tower = Instantiate(towerPrefab, LocalToWorldPos(localPos), Quaternion.identity);
+		var tower = Instantiate(towerPrefab, LocalToWorldPos(localPos), Quaternion.identity, towerHolder.transform);
 		tower.GetComponent<Tower>().active = true;
+		tower.GetComponent<Tower>().SetStats(towerToPlace);
 		map[localPos.x, localPos.y] = tower;
+	}
+
+	public static void SetTowerToPlace(TowerStats stats)
+	{
+		mode = Mode.PlacingTower;
+		towerToPlace = stats;
+		towerPreview.GetComponent<Tower>().SetStats(stats);
 	}
 
 	#region helpers
