@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class World : MonoBehaviour
 {
+	public enum Mode
+	{
+		PlacingTower,
+		None
+	}
+
 	public static List<GameObject> monsters;
 	public static List<GameObject> path;
 	public static GameObject[,] map;
@@ -14,7 +20,10 @@ public class World : MonoBehaviour
 	public GameObject pathHolder;
 	public GameObject pathPointPrefab;
 	public GameObject monstarPrefab;
+	public GameObject towerPrefab;
+	public GameObject towerPreview;
 
+	public Mode mode;
 	public float spawnInterval;
 	public float timeSinceLastSpawn;
 	public int monstersLeft;
@@ -23,10 +32,12 @@ public class World : MonoBehaviour
 	{
 		monsters = new List<GameObject>();
 		path = new List<GameObject>();
-
+		
 		var widthTiles = WorldToLocalDist(Screen.width);
 		var heightTiles = WorldToLocalDist(Screen.height);
 		map = new GameObject[widthTiles, heightTiles];
+		
+		towerPreview = Instantiate(towerPrefab, new Vector3(-100, -100), Quaternion.identity);
 
 		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(1				, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
 		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(widthTiles - 2	, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
@@ -38,6 +49,7 @@ public class World : MonoBehaviour
 			path[i].name = "point" + i;
 		}
 
+		mode = Mode.None;
 		money = 10;
 		level = 0;
 		spawnInterval = 1;
@@ -45,43 +57,65 @@ public class World : MonoBehaviour
 
 	public void Update()
 	{
-		
-		var mousePos = WorldToLocalPos(Input.mousePosition);
-		if (LocalPosValid(mousePos) && map[mousePos.x, mousePos.y] != null)
+		if (mode == Mode.None)
 		{
-			map[mousePos.x, mousePos.y].GetComponent<Tower>().ShowRange();
-		}
-
-		//NOTE(Simon): Spawning
-		{
-			timeSinceLastSpawn += Time.deltaTime;
-			if (timeSinceLastSpawn > spawnInterval)
+			var mousePos = WorldToLocalPos(Input.mousePosition);
+			if (LocalPosValid(mousePos) && map[mousePos.x, mousePos.y] != null)
 			{
-				var monster = Instantiate(monstarPrefab, path[0].transform.position, Quaternion.identity);
-				monster.GetComponent<Monstar>().SetStats((int)(level * 1.5f), (int)(1 * Mathf.Pow(1.25f, level)));
-				monsters.Add(monster);
-				timeSinceLastSpawn = 0;
-				monstersLeft--;
+				map[mousePos.x, mousePos.y].GetComponent<Tower>().ShowRange();
+			}
 
-				if (monstersLeft <= 0)
-				{
-					level += 1;
-					monstersLeft = 10;
-				}
+			if (Input.GetKey(KeyCode.F1))
+			{
+				mode = Mode.PlacingTower;
 			}
 		}
 
-		//NOTE(Simon): Killing/despawning
+		if (mode == Mode.PlacingTower)
 		{
-			for (int i = monsters.Count - 1; i >= 0; i--)
+			var pos = World.WorldToLocalPos(Input.mousePosition);
+
+			if (Input.GetMouseButtonDown(0)
+				&& map[pos.x, pos.y] == null
+				&& money >= 10)
 			{
-				var m = monsters[i].GetComponent<Monstar>();
-				if (m.dead)
-				{
-					money += m.reward;
-					Destroy(monsters[i]);
-					monsters.RemoveAt(i);
-				}
+				PlaceTower(pos);
+				money -= 10;
+			}
+
+			towerPreview.transform.position = LocalToWorldPos(pos);
+			towerPreview.GetComponent<Tower>().ShowRange();
+
+			if (Input.GetKey(KeyCode.Escape))
+			{
+				mode = Mode.None;
+				towerPreview.transform.position = new Vector3(-100, -100);
+			}
+		}
+
+		timeSinceLastSpawn += Time.deltaTime;
+		if (timeSinceLastSpawn > spawnInterval)
+		{
+			var monster = Instantiate(monstarPrefab, path[0].transform.position, Quaternion.identity);
+			monster.GetComponent<Monstar>().SetStats((int)(level * 1.5f), (int)(10 * Mathf.Pow(1.25f, level - 1)));
+			monsters.Add(monster);
+			timeSinceLastSpawn = 0;
+			monstersLeft--;
+
+			if (monstersLeft <= 0)
+			{
+				level += 1;
+				monstersLeft = 10;
+			}
+		}
+		for (int i = monsters.Count - 1; i >= 0; i--)
+		{
+			var m = monsters[i].GetComponent<Monstar>();
+			if (m.dead)
+			{
+				money += m.reward;
+				Destroy(monsters[i]);
+				monsters.RemoveAt(i);
 			}
 		}
 	}
@@ -90,8 +124,15 @@ public class World : MonoBehaviour
 	{
 		GUI.Label(new Rect(0, 0, 100, 20), "money: " + money);
 		GUI.Label(new Rect(0, 20, 100, 20), "level: " + level);
-		GUI.Label(new Rect(0, 40, 100, 20), "hp: " + (int)(1 * Mathf.Pow(1.5f, level)));
+		GUI.Label(new Rect(0, 40, 100, 20), "hp: " + (int)(10 * Mathf.Pow(1.25f, level - 1)));
 		GUI.Label(new Rect(0, 60, 100, 20), "monsters left: " + monstersLeft);
+	}
+
+	void PlaceTower(Vector2Int localPos)
+	{
+		var tower = Instantiate(towerPrefab, LocalToWorldPos(localPos), Quaternion.identity);
+		tower.GetComponent<Tower>().active = true;
+		map[localPos.x, localPos.y] = tower;
 	}
 
 	#region helpers

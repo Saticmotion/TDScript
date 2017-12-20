@@ -6,7 +6,7 @@ public class Tower : MonoBehaviour
 
 	public float shootInterval = 0.5f;
 	public float timeSinceLastShot;
-	public int damage = 1;
+	public int damage;
 	public int range;
 	public bool showRangeThisFrame;
 	public bool active;
@@ -17,6 +17,7 @@ public class Tower : MonoBehaviour
 	{
 		lazor = GetComponent<LineRenderer>();
 		range = 3;
+		damage = 10;
 		rangeIndicator.transform.localScale = new Vector3(range * 2, range * 2);
 	}
 

@@ -5,6 +5,8 @@ public class Monstar : MonoBehaviour
 {
 	public GameObject prevPoint;
 	public GameObject nextPoint;
+	public GameObject maxHpSprite;
+	public GameObject curHpSprite;
 
 	public int pathIndex;
 	public bool dead;
@@ -12,12 +14,13 @@ public class Monstar : MonoBehaviour
 	public int hp;
 	public int reward;
 
+	public float maxHpSpriteWidth;
+
 	void Start()
 	{
 		prevPoint = World.path[0];
 		nextPoint = World.path[1];
-
-		
+		maxHpSpriteWidth = maxHpSprite.transform.localScale.x;
 	}
 
 	void Update()
@@ -38,12 +41,16 @@ public class Monstar : MonoBehaviour
 
 		var direction = Vector3.Normalize(nextPoint.transform.position - prevPoint.transform.position);
 		transform.position += direction * World.LocalToWorldDist(1) * Time.deltaTime;
+
+		var curScale = curHpSprite.transform.localScale;
+		curScale.x = maxHpSpriteWidth * (hp / (float)maxHp);
+		curHpSprite.transform.localScale = curScale;
 	}
 
 	public void SetStats(int reward, int maxHp)
 	{
 		this.maxHp = maxHp;
-		hp = maxHp;
+		this.hp = maxHp;
 		this.reward = reward;
 	}
 

@@ -211,7 +211,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1377765044}
   - component: {fileID: 1377765043}
-  - component: {fileID: 1377765045}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -235,8 +234,13 @@ MonoBehaviour:
     type: 2}
   monstarPrefab: {fileID: 1462534563366942, guid: 6f164e8d54780d8408f573c61486734c,
     type: 2}
+  towerPrefab: {fileID: 1028949200412356, guid: e6389c97433a4094bb2a6a88a1f4293f,
+    type: 2}
+  towerPreview: {fileID: 0}
+  mode: 0
   spawnInterval: 2
   timeSinceLastSpawn: 0
+  monstersLeft: 0
 --- !u!4 &1377765044
 Transform:
   m_ObjectHideFlags: 0
@@ -250,21 +254,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1377765045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1377765042}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b30989ec74158894faa7491204763e7e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mode: 0
-  towerPrefab: {fileID: 1028949200412356, guid: e6389c97433a4094bb2a6a88a1f4293f,
-    type: 2}
-  towerPreview: {fileID: 0}
 --- !u!1 &1713607440
 GameObject:
   m_ObjectHideFlags: 0
