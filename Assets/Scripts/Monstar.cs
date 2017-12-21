@@ -43,8 +43,16 @@ public class Monstar : MonoBehaviour
 		transform.position += direction * World.LocalToWorldDist(1) * Time.deltaTime;
 
 		var curScale = curHpSprite.transform.localScale;
-		curScale.x = maxHpSpriteWidth * (hp / (float)maxHp);
+		var curPos = curHpSprite.transform.localPosition;
+		var fraction = (hp / (float)maxHp);
+
+		//NOTE(Simon): Scale healthbar size
+		curScale.x = maxHpSpriteWidth * fraction;
 		curHpSprite.transform.localScale = curScale;
+
+		//NOTE(Simon): Offset scaled healthbar
+		curPos.x = -maxHpSpriteWidth / 2 * (1 - fraction);
+		curHpSprite.transform.localPosition = curPos;
 	}
 
 	public void SetStats(int reward, int maxHp)
@@ -61,7 +69,7 @@ public class Monstar : MonoBehaviour
 			dead = true;
 		}
 
-		hp -= damage;
+		hp = Mathf.Max(0, hp - damage);
 
 		if (hp <= 0)
 		{
