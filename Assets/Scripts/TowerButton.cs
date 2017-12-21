@@ -23,19 +23,24 @@ public class TowerButton : MonoBehaviour
 
 	public void SetTowerPreview()
 	{
-		//TODO(Simon): Currently you can click on one tower button, and then another. The first's state won't update
 		if (!active)
 		{
+			towerSelector.ResetButtons();
 			World.SetTowerPreview(stats);
 			GetComponentsInChildren<Image>()[1].sprite = Resources.Load<Sprite>("Textures/cancel");
 			active = true;
 		}
 		else
 		{
-			World.CancelTowerPreview();
-			GetComponentsInChildren<Image>()[1].sprite = Resources.Load<Sprite>(stats.image);
-			active = false;
+			CancelTowerPreview();
 		}
+	}
+
+	public void CancelTowerPreview()
+	{
+		World.CancelTowerPreview();
+		GetComponentsInChildren<Image>()[1].sprite = Resources.Load<Sprite>(stats.image);
+		active = false;
 	}
 
 	private void OnMouseEnter()

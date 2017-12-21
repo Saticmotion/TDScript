@@ -87,11 +87,6 @@ public class World : MonoBehaviour
 
 			towerPreview.transform.position = LocalToWorldPos(pos);
 			towerPreview.GetComponent<Tower>().ShowRange();
-
-			if (Input.GetKey(KeyCode.Escape))
-			{
-				CancelTowerPreview();
-			}
 		}
 
 		timeSinceLastSpawn += Time.deltaTime;
