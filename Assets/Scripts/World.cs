@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class World : MonoBehaviour
 {
@@ -79,12 +80,9 @@ public class World : MonoBehaviour
 		{
 			var pos = WorldToLocalPos(Input.mousePosition);
 
-			if (Input.GetMouseButtonDown(0)
-				&& map[pos.x, pos.y] == null
-				&& money >= 10)
+			if (Input.GetMouseButtonDown(0) && CanPlaceTower(towerToPlace, pos))
 			{
-				PlaceTower(pos);
-				money -= 10;
+				PlaceTower(towerToPlace, pos);
 			}
 
 			towerPreview.transform.position = LocalToWorldPos(pos);
@@ -92,8 +90,7 @@ public class World : MonoBehaviour
 
 			if (Input.GetKey(KeyCode.Escape))
 			{
-				mode = Mode.None;
-				towerPreview.transform.position = new Vector3(-100, -100);
+				CancelTowerPreview();
 			}
 		}
 
@@ -132,19 +129,32 @@ public class World : MonoBehaviour
 		GUI.Label(new Rect(0, 60, 100, 20), "monsters left: " + monstersLeft);
 	}
 
-	void PlaceTower(Vector2Int localPos)
+	void PlaceTower(TowerStats stats, Vector2Int localPos)
 	{
 		var tower = Instantiate(towerPrefab, LocalToWorldPos(localPos), Quaternion.identity, towerHolder.transform);
 		tower.GetComponent<Tower>().active = true;
-		tower.GetComponent<Tower>().SetStats(towerToPlace);
+		tower.GetComponent<Tower>().SetStats(stats);
+
 		map[localPos.x, localPos.y] = tower;
+		money -= stats.cost;
 	}
 
-	public static void SetTowerToPlace(TowerStats stats)
+	public static void SetTowerPreview(TowerStats stats)
 	{
 		mode = Mode.PlacingTower;
 		towerToPlace = stats;
 		towerPreview.GetComponent<Tower>().SetStats(stats);
+	}
+
+	public static void CancelTowerPreview()
+	{
+		mode = Mode.None;
+		towerPreview.transform.position = new Vector3(-100, -100);
+	}
+
+	public static bool CanPlaceTower(TowerStats stats, Vector2Int pos)
+	{
+		return map[pos.x, pos.y] == null && money >= stats.cost && !EventSystem.current.IsPointerOverGameObject() ;
 	}
 
 	#region helpers

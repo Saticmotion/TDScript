@@ -87,6 +87,7 @@ public struct TowerStats
 	public int damage;
 	public int range;
 	public float shootInterval;
+	public int cost;
 	public string image;
 }
 
@@ -97,6 +98,7 @@ public class TowerTypes
 		damage = 10,
 		range = 3,
 		shootInterval = 0.5f,
+		cost = 5,
 		image = "Textures/tower"
 	};
 	
@@ -105,6 +107,7 @@ public class TowerTypes
 		damage = 25,
 		range = 4,
 		shootInterval = 1.5f,
+		cost = 10,
 		image = "Textures/towerRed"
 	};
 }
