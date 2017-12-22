@@ -4,10 +4,10 @@ public class Tower : MonoBehaviour
 {
 	public GameObject rangeIndicator;
 
-	public float shootInterval;
+	public int level;
+	public TowerStats stats;
+
 	public float timeSinceLastShot;
-	public int damage;
-	public int range;
 	public bool showRangeThisFrame;
 	public bool active;
 
@@ -16,6 +16,7 @@ public class Tower : MonoBehaviour
 	void Start()
 	{
 		lazor = GetComponent<LineRenderer>();
+		level = 1;
 	}
 
 	void Update()
@@ -24,7 +25,7 @@ public class Tower : MonoBehaviour
 
 		var monsters = World.monsters;
 
-		if (timeSinceLastShot > shootInterval && active)
+		if (timeSinceLastShot > stats.shootInterval && active)
 		{
 			if (monsters.Count > 0)
 			{
@@ -41,11 +42,11 @@ public class Tower : MonoBehaviour
 					}
 				}
 
-				if (nearestDistance < World.LocalToWorldDist(range))
+				if (nearestDistance < World.LocalToWorldDist(stats.range))
 				{
 					lazor.enabled = true;
 					lazor.SetPositions(new[] { transform.position, nearest.transform.position });
-					nearest.GetComponent<Monstar>().Hit(damage);
+					nearest.GetComponent<Monstar>().Hit(stats.damage);
 
 					timeSinceLastShot = 0;
 				}
@@ -72,13 +73,21 @@ public class Tower : MonoBehaviour
 		showRangeThisFrame = true;
 	}
 
+	public void ShowDetails()
+	{
+		World.towerDetails.SetActive(true);
+		World.towerDetails.GetComponent<TowerDetails>().SetStats(stats, this);
+		var pos = transform.position;
+		pos.x += 20;
+		pos.y -= 20;
+		World.towerDetails.transform.position = pos;
+	}
+
 	public void SetStats(TowerStats stats)
 	{
-		damage = stats.damage;
-		range = stats.range;
-		shootInterval = stats.shootInterval;
+		this.stats = stats;
 		GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(stats.image);
-		rangeIndicator.transform.localScale = new Vector3(range * 2, range * 2);
+		rangeIndicator.transform.localScale = new Vector3(stats.range * 2, stats.range * 2);
 	}
 }
 

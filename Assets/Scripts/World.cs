@@ -17,6 +17,7 @@ public class World : MonoBehaviour
 	public static Mode mode;
 	public static TowerStats towerToPlace;
 	public static GameObject towerPreview;
+	public static GameObject towerDetails;
 
 	public static int money;
 	public static int level;
@@ -27,6 +28,7 @@ public class World : MonoBehaviour
 	public GameObject pathPointPrefab;
 	public GameObject monstarPrefab;
 	public GameObject towerPrefab;
+	public GameObject towerDetailsHolder;
 
 	public float spawnInterval;
 	public float timeSinceLastSpawn;
@@ -43,6 +45,8 @@ public class World : MonoBehaviour
 		
 		towerPreview = Instantiate(towerPrefab, new Vector3(-100, -100), Quaternion.identity);
 		towerPreview.GetComponent<Tower>().SetStats(TowerTypes.regular);
+
+		towerDetails = towerDetailsHolder;
 
 		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(1				, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
 		path.Add(Instantiate(pathPointPrefab, LocalToWorldPos(new Vector2Int(widthTiles - 2	, heightTiles - 2))	, Quaternion.identity, pathHolder.transform));
@@ -67,7 +71,16 @@ public class World : MonoBehaviour
 			var mousePos = WorldToLocalPos(Input.mousePosition);
 			if (LocalPosValid(mousePos) && map[mousePos.x, mousePos.y] != null)
 			{
-				map[mousePos.x, mousePos.y].GetComponent<Tower>().ShowRange();
+				var tower = map[mousePos.x, mousePos.y].GetComponent<Tower>();
+				tower.ShowRange();
+				if (Input.GetMouseButtonDown(0))
+				{
+					tower.ShowDetails();
+				}
+			}
+			else if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+			{
+				towerDetails.SetActive(false);
 			}
 
 			if (Input.GetKey(KeyCode.F1))
@@ -149,7 +162,7 @@ public class World : MonoBehaviour
 
 	public static bool CanPlaceTower(TowerStats stats, Vector2Int pos)
 	{
-		return map[pos.x, pos.y] == null && money >= stats.cost && !EventSystem.current.IsPointerOverGameObject() ;
+		return map[pos.x, pos.y] == null && money >= stats.cost && !EventSystem.current.IsPointerOverGameObject();
 	}
 
 	#region helpers
