@@ -21,6 +21,8 @@ public class World : MonoBehaviour
 
 	public static int money;
 	public static int level;
+	public static int monstersLeft;
+	public static int monsterHp;
 
 	public GameObject pathHolder;
 	public GameObject monsterHolder;
@@ -32,7 +34,8 @@ public class World : MonoBehaviour
 
 	public float spawnInterval;
 	public float timeSinceLastSpawn;
-	public int monstersLeft;
+	public float levelInterval;
+	public float timeSinceLastLevel;
 
 	public void Start()
 	{
@@ -62,6 +65,7 @@ public class World : MonoBehaviour
 		money = 10;
 		level = 0;
 		spawnInterval = 1;
+		levelInterval = 5;
 	}
 
 	public void Update()
@@ -102,21 +106,33 @@ public class World : MonoBehaviour
 			towerPreview.GetComponent<Tower>().ShowRange();
 		}
 
-		timeSinceLastSpawn += Time.deltaTime;
-		if (timeSinceLastSpawn > spawnInterval)
+		if (monstersLeft <= 0)
 		{
-			var monster = Instantiate(monstarPrefab, path[0].transform.position, Quaternion.identity, monsterHolder.transform);
-			monster.GetComponent<Monstar>().SetStats((int)(level * 1.5f), (int)(10 * Mathf.Pow(1.25f, level - 1)));
-			monsters.Add(monster);
-			timeSinceLastSpawn = 0;
-			monstersLeft--;
-
-			if (monstersLeft <= 0)
+			//NOTE(Simon): Count down to next level
+			timeSinceLastLevel += Time.deltaTime;
+			if (timeSinceLastLevel > levelInterval)
 			{
+				timeSinceLastLevel = 0;
 				level += 1;
 				monstersLeft = 10;
+				monsterHp = (int)(10 * Mathf.Pow(1.25f, level - 1));
 			}
 		}
+		else
+		{
+			//NOTE(Simon): Count down to next monstar
+			timeSinceLastSpawn += Time.deltaTime;
+			if (timeSinceLastSpawn > spawnInterval)
+			{
+				var monster = Instantiate(monstarPrefab, path[0].transform.position, Quaternion.identity, monsterHolder.transform);
+				monster.GetComponent<Monstar>().SetStats((int)(level * 1.5f), monsterHp);
+				monsters.Add(monster);
+				timeSinceLastSpawn = 0;
+				monstersLeft--;
+			}
+		}
+
+		//NOTE(Simon): Destroy dead monstars
 		for (int i = monsters.Count - 1; i >= 0; i--)
 		{
 			var m = monsters[i].GetComponent<Monstar>();
@@ -127,14 +143,6 @@ public class World : MonoBehaviour
 				monsters.RemoveAt(i);
 			}
 		}
-	}
-
-	public void OnGUI()
-	{
-		GUI.Label(new Rect(0, 0, 100, 20), "money: " + money);
-		GUI.Label(new Rect(0, 20, 100, 20), "level: " + level);
-		GUI.Label(new Rect(0, 40, 100, 20), "hp: " + (int)(10 * Mathf.Pow(1.25f, level - 1)));
-		GUI.Label(new Rect(0, 60, 100, 20), "monsters left: " + monstersLeft);
 	}
 
 	void PlaceTower(TowerStats stats, Vector2Int localPos)
@@ -167,7 +175,7 @@ public class World : MonoBehaviour
 
 	#region helpers
 
-	public static int unitSize = 40;
+	public static int unitSize = 30;
 	public static int unitOffset = unitSize / 2;
 
 	public static int LocalToWorldPos(int localPos)
