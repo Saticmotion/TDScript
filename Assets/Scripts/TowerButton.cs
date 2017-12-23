@@ -13,12 +13,13 @@ public class TowerButton : MonoBehaviour
 		towerSelector = GetComponentInParent<TowerSelector>();
 	}
 
-	public void SetStats(TowerStats stats)
+	public void SetStats(TowerStats stats, int index)
 	{
 		this.stats = stats;
 
 		//NOTE(Simon): Index [1], to ignore self.
 		GetComponentsInChildren<Image>()[1].sprite = Resources.Load<Sprite>(stats.image);
+		GetComponentInChildren<Text>().text = index.ToString();
 	}
 
 	public void SetTowerPreview()
