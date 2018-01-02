@@ -42,8 +42,8 @@ public class World : MonoBehaviour
 		monsters = new List<GameObject>();
 		path = new List<GameObject>();
 		
-		var widthTiles = WorldToLocalDist(Screen.width);
-		var heightTiles = WorldToLocalDist(Screen.height);
+		var widthTiles = (int)WorldToLocalDist(Screen.width);
+		var heightTiles = (int)WorldToLocalDist(Screen.height);
 		map = new GameObject[widthTiles, heightTiles];
 		
 		towerPreview = Instantiate(towerPrefab, new Vector3(-100, -100), Quaternion.identity);
@@ -183,7 +183,7 @@ public class World : MonoBehaviour
 		return localPos * unitSize + unitOffset;
 	}
 
-	public static int LocalToWorldDist(int localDist)
+	public static float LocalToWorldDist(float localDist)
 	{
 		return localDist * unitSize;
 	}
@@ -213,7 +213,7 @@ public class World : MonoBehaviour
 		return worldPos / unitSize;
 	}
 
-	public static int WorldToLocalDist(int worldDist)
+	public static float WorldToLocalDist(float worldDist)
 	{
 		return worldDist / unitSize;
 	}

@@ -85,16 +85,19 @@ public class Tower : MonoBehaviour
 
 	public void SetStats(TowerStats stats)
 	{
+		stats.range += 0.5f;
 		this.stats = stats;
 		GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(stats.image);
-		rangeIndicator.transform.localScale = new Vector3(stats.range * 2, stats.range * 2);
+		var rangeSpriteSize = rangeIndicator.GetComponent<SpriteRenderer>().sprite.rect;
+		var rangeSizeLocal = World.WorldToLocalDist(rangeSpriteSize.width);
+		rangeIndicator.transform.localScale = new Vector3(stats.range / rangeSizeLocal * 2, stats.range / rangeSizeLocal * 2);
 	}
 }
 
 public struct TowerStats
 {
 	public int damage;
-	public int range;
+	public float range;
 	public float shootInterval;
 	public int cost;
 	public string image;
