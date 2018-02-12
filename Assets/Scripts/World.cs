@@ -97,9 +97,16 @@ public class World : MonoBehaviour
 		{
 			var pos = WorldToLocalPos(Input.mousePosition);
 
-			if (Input.GetMouseButtonDown(0) && CanPlaceTower(towerToPlace, pos))
+			if (CanPlaceTower(towerToPlace, pos))
 			{
-				PlaceTower(towerToPlace, pos);
+				if (Input.GetMouseButtonDown(0))
+				{
+					PlaceTower(towerToPlace, pos);
+				}
+			}
+			else
+			{
+				//TODO(Simon): Show icon to indicate placement not possible
 			}
 
 			towerPreview.transform.position = LocalToWorldPos(pos);
